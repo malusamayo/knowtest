@@ -12,7 +12,7 @@ class Example:
             self.id = id
 
         self.exampleText = ""
-        self.exampleCorrect = ""
+        self.exampleTrue = ""
         self.examplePredicted = ""
         self.isSuggested = False
 
@@ -23,12 +23,10 @@ class Example:
         return {
             "id": self.id,
             "exampleText": self.exampleText,
-            "exampleCorrect": self.exampleCorrect,
+            "exampleTrue": self.exampleTrue,  #Correct -> label
             "examplePredicted": self.examplePredicted,
             "isSuggested": self.isSuggested
         }
-    
-
 
 class Node:
     def __init__(self, name: str, parent_id: str, node_id: Union[str, None]=None, tags=[], isOpen: bool=False, isHighlighted: bool=False, examples=[]):
@@ -88,11 +86,10 @@ class Node:
         return "Node({}, {})".format(self.name, self.tags)
     
     def add_examples(self, examples: list) -> None:
-        
         for example in examples:
             temp_example = Example(example["id"])
             temp_example.exampleText = example["exampleText"]
-            temp_example.exampleCorrect = example["exampleCorrect"]
+            temp_example.exampleTrue = example["exampleTrue"]
             temp_example.examplePredicted = example["examplePredicted"]
             temp_example.isSuggested = example["isSuggested"]
 
@@ -104,6 +101,22 @@ class Node:
                 while temp_example.id in self.suggested_examples:
                     temp_example.generate_new_id()
                 self.suggested_examples[temp_example.id] = temp_example
+    
+    def add_example(self, example: Example) -> None:
+        if example.isSuggested == False:
+            while example.id in self.examples:
+                example.generate_new_id()
+            self.examples[example.id] = example
+        else:
+            while example.id in self.suggested_examples:
+                example.generate_new_id()
+            self.suggested_examples[example.id] = example
+
+    def remove_example(self, example_id: str) -> None:
+        if example_id in self.examples:
+            del self.examples[example_id]
+        elif example_id in self.suggested_examples:
+            del self.suggested_examples[example_id]
 
     def get_Json_object(self) -> dict:
 

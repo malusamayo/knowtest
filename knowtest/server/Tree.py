@@ -9,9 +9,10 @@ from ..knowledge.knbase import run_kb_contruction
 from .StateStack import StateStack
 from .Node import Node
 from ..knowledge.relations import path_to_nl_description
+from .Node import Example
 
 class Tree:
-    def __init__(self, topic: str="root", filename: str=None, KGOutput: str="../output", stateDirectory: str="../output", firstLoad: int=2):
+    def __init__(self, topic: str="root", filename: str=None, KGOutput: str="../output", stateDirectory: str="../output", firstLoad: int=1):
 
         self.tag_filters = []
         self.number_of_topics = 0
@@ -36,8 +37,7 @@ class Tree:
                         parent_id=None)
             self.add_node(node)
             data = self.kg.initialize_tree(topic=topic)
-            ## Add all data to the tree <topic, relation, parent>
-            ## Similar thing in topic change
+            self.add_initial_data(data)
 
     def set_only_highlighted(self, only_highlighted: bool):
         print("Setting only highlighted to: ", only_highlighted)
@@ -325,6 +325,19 @@ class Tree:
             cwd = cwd + "/ ({}) {}".format(tags, self.nodes[node_id].name)
 
         return cwd
+    
+    def add_example(self, node_id: str, exampleText: str, exampleTrue: str, examplePredicted, isSuggested: bool):
+        if node_id in self.nodes:
+            example = Example(id=None)
+            example.exampleText = exampleText
+            example.exampleTrue = exampleTrue
+            example.examplePredicted = examplePredicted
+            example.isSuggested = isSuggested
+            self.nodes[node_id].add_example(example)
+    
+    def remove_example(self, node_id: str, exampleID: str):
+        if node_id in self.nodes:
+            self.nodes[node_id].remove_example(exampleID)
 
     def remove_all_tags_from_filter(self):
         self.tag_filters = []
@@ -342,6 +355,19 @@ class Tree:
                     nodes_to_remove.append(child_id)
             for node_id in nodes_to_remove:
                 self.remove_node_with_id(node_id)
+                
+    def add_initial_data(self, data: dict):
+        for node_data in data:
+            for node in self.nodes.values():
+                if node.name == node_data["parent"]:
+                    parent_id = node.id
+                    temp_node = Node(name=node_data['topic'], 
+                                     parent_id=parent_id, 
+                                     tags=[node_data['relation']])
+                    self.add_node(temp_node)
+                    break
+
+                        
 
     def read_json(self, filename: str):
         try:
@@ -361,6 +387,7 @@ class Tree:
         except Exception as e:
             raise Exception("[Unable to read file: {}] Error: {}".format(filename, e))
             return False
+        
 
     def write_json(self, filename: str, updateState: bool = True):
         if updateState:

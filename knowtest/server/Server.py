@@ -139,6 +139,22 @@ class CapabilityApp:
         def toggle_is_highlighted_selection():
             return self.t.only_highlighted
         
+        @self.app.get("/addExample/nodeId={node_id}&exampleText={example_text}&exampleTrue={example_true}&isSuggested={is_suggested}")
+        def add_example(node_id: str, example_text: str, example_true: str, is_suggested: bool):
+            # TODO: Predict
+            example_predicted = "True"
+
+            self.t.add_example(node_id, example_text, example_true, example_predicted, is_suggested)
+            self.t.write_json(self.filepath)
+            return "Done"
+        
+        @self.app.get("/removeExample/nodeID={node_id}&exampleID={example_id}")
+        def remove_example(node_id: str, example_id: str):
+            self.t.remove_example(node_id, example_id)
+            self.t.write_json(self.filepath)
+            return self.t.generate_json()
+
+        
         self.app.add_middleware(
             CORSMiddleware,
             allow_origins=["*"],

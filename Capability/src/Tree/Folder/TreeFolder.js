@@ -13,7 +13,7 @@ import {
 import { MdDeleteForever } from "react-icons/md";
 import { FaFolderPlus } from "react-icons/fa";
 import { BiRefresh, BiPlusMedical } from "react-icons/bi";
-import { BsSearch } from "react-icons/bs";
+import { BsSearch, BsFillPlusCircleFill } from "react-icons/bs";
 import { ImPlus, ImCross } from "react-icons/im";
 
 import {
@@ -126,7 +126,7 @@ const FolderName = ({ isOpen, name, handleClick, isHighlighted, node, isEditing,
           isOpen ? <AiOutlineFolderOpen onClick={handleNodeHighlight}/> : <AiOutlineFolder onClick={handleNodeHighlight}/>
       }
       {!isEditing ? 
-        node.tag.length > 0 ? node.tag.map((tag) => <StyledRelation node={node} nodeTag={tag}/>) : null :
+        node.tag.length > 0 ? node.tag.map((tag, index) => <StyledRelation node={node} nodeTag={tag} key={index}/>) : null :
         node.tag.length ? (<Dropdown node={node}/>): null
       }
       &nbsp;&nbsp;
@@ -362,18 +362,16 @@ const Folder = ({ id, name, children, node, root}) => {
             <Collapse className="tree__folder--collapsible" isOpen={isOpen}>
             {childs}
             <StyledName onClick={commitSuggestions} 
-            style={{
-              paddingLeft: "20px",
-              fontSize: "100%",
-
-            }}>
-              <BiPlusMedical style={{fontSize: "80%", opacity:"0.8"}}/> &nbsp;&nbsp; 
+              style={{
+                paddingLeft: "22px",
+                fontSize: "100%",
+                color: "rgba(167, 20, 168, 1)",
+              }}>
+              <BsFillPlusCircleFill style={{fontSize: "80%", opacity:"0.8"}}/> &nbsp;&nbsp; 
               <div style={{
                 display: "inline-block",
-                // backgroundColor: "rgba(54, 54, 54, 0.3)",
-                // borderRadius: "2px",
-                padding: "3px"
-              }}>... Show more topics </div>
+                // padding: "2px"
+              }}>Show more topics for "{name}"</div>
             </StyledName>
           </Collapse>
           )}
